@@ -22,6 +22,7 @@ public sealed class MauiBottomSheet : UIView, IEnumerable<UIView>, IReloadHandle
     private IBottomSheet? _virtualView;
 
     private bool _isAttachedToWindow;
+    private bool _isOpening;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MauiBottomSheet"/> class.
@@ -82,11 +83,19 @@ public sealed class MauiBottomSheet : UIView, IEnumerable<UIView>, IReloadHandle
     /// Reloads the bottom sheet by closing and reopening it asynchronously to apply updated content or settings.
     /// </summary>
     [SuppressMessage("Usage", "VSTHRD100: Avoid async void methods", Justification = "Is okay here.")]
+    [SuppressMessage("Design", "CA1031: Do not catch general exception types", Justification = "Catch all exceptions to prevent crash.")]
     public async void Reload()
     {
-        await CloseAsync().ConfigureAwait(true);
-        await Task.Delay(100).ConfigureAwait(true);
-        await OpenAsync().ConfigureAwait(true);
+        try
+        {
+            await CloseAsync().ConfigureAwait(true);
+            await Task.Delay(100).ConfigureAwait(true);
+            await OpenAsync().ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Trace.TraceError("Reloading bottom sheet failed: {0}", ex);
+        }
     }
 
     /// <summary>
@@ -115,6 +124,25 @@ public sealed class MauiBottomSheet : UIView, IEnumerable<UIView>, IReloadHandle
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     public async Task OpenAsync()
+    {
+        if (_isOpening)
+        {
+            return;
+        }
+
+        _isOpening = true;
+
+        try
+        {
+            await OpenCoreAsync().ConfigureAwait(true);
+        }
+        finally
+        {
+            _isOpening = false;
+        }
+    }
+
+    private async Task OpenCoreAsync()
     {
         if (_virtualView is null)
         {

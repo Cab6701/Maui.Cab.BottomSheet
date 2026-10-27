@@ -24,7 +24,7 @@ public class BottomSheetTests
 
         // Assert
         Assert.True(bottomSheet.IsModal);
-        Assert.Equal(20.0f, bottomSheet.CornerRadius);
+        Assert.Equal(50.0f, bottomSheet.CornerRadius);
         Assert.Equal(Color.FromArgb("#80000000"), bottomSheet.WindowBackgroundColor);
         Assert.True(bottomSheet.IsCancelable);
         Assert.True(bottomSheet.HasHandle);

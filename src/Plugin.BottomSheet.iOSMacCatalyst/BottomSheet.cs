@@ -158,14 +158,13 @@ public sealed class BottomSheet : UINavigationController, IEnumerable<UIView>
     public bool Draggable
     {
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        get => PresentationController?.PresentedView?.GestureRecognizers?[0] is not null
-            && PresentationController.PresentedView.GestureRecognizers[0].Enabled;
+        get => PresentationController?.PresentedView?.GestureRecognizers?.FirstOrDefault()?.Enabled == true;
         set
         {
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-            if (PresentationController?.PresentedView?.GestureRecognizers?[0] is not null)
+            if (PresentationController?.PresentedView?.GestureRecognizers?.FirstOrDefault() is UIGestureRecognizer recognizer)
             {
-                PresentationController.PresentedView.GestureRecognizers[0].Enabled = value;
+                recognizer.Enabled = value;
             }
         }
     }
@@ -425,8 +424,7 @@ public sealed class BottomSheet : UINavigationController, IEnumerable<UIView>
     {
         await DismissViewControllerAsync(true).ConfigureAwait(true);
 
-        if (ViewControllers?.First(x => x is BottomSheetContainerViewController) is BottomSheetContainerViewController
-            container)
+        if (ViewControllers?.OfType<BottomSheetContainerViewController>().FirstOrDefault() is BottomSheetContainerViewController container)
         {
             container.RemoveFromParentViewController();
             container.Dispose();

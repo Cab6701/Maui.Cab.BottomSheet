@@ -69,12 +69,17 @@ internal sealed class BottomSheetDelegate : UISheetPresentationControllerDelegat
             UISheetPresentationControllerDetentIdentifier.Unknown => BottomSheetState.Peek,
             UISheetPresentationControllerDetentIdentifier.Medium => BottomSheetState.Medium,
             UISheetPresentationControllerDetentIdentifier.Large => BottomSheetState.Large,
-            _ => throw new ArgumentOutOfRangeException(sheetPresentationController.SelectedDetentIdentifier.ToString()),
+            _ => BottomSheetState.Peek,
         };
+
+        BottomSheetState oldState = CurrentState;
+
+        // Update before raising: a handler may reject the change and restore the old state.
+        CurrentState = state;
 
         _eventManager.RaiseEvent(
             sheetPresentationController,
-            new BottomSheetStateChangedEventArgs(CurrentState, state),
+            new BottomSheetStateChangedEventArgs(oldState, state),
             nameof(StateChanged));
     }
 }
